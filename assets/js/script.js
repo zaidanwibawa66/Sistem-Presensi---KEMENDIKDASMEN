@@ -169,7 +169,7 @@ async function initHome() {
                     month: 'long',
                     year: 'numeric'
                 })}`,
-                                
+
                 inTime: item.jam_masuk || '--:--:--',
                 outTime: item.jam_keluar || '--:--:--',
                 type: item.status || 'KDK'
@@ -320,7 +320,7 @@ async function executeAttendanceLogic() {
     const timeStr = formatTimeOnly(now);
 
     // ⛔ Di luar jam kerja
-    if (hour >= 18 || hour < 6) {
+    if (hour < 6 || hour >= 21) {
         showAppModal(
             "Di Luar Jam Kerja",
             "Sistem presensi ditutup.<br>Jam operasional: <b>06:00 - 18:00</b>",
@@ -359,6 +359,16 @@ async function executeAttendanceLogic() {
                 );
                 return;
             }
+
+            // ❌ lewat jam pulang
+            if (hour >= 21) {
+                showAppModal(
+                    "Presensi Ditutup",
+                    "Presensi pulang ditutup pukul <b>21:00</b>",
+                    "warning"
+                );
+                return;
+            }
     
             // ✅ CLOCK OUT SAH
             history[existingIndex].outTime = timeStr;
@@ -378,15 +388,12 @@ async function executeAttendanceLogic() {
             return;
         }
 
-        // =========================
-        // 🟢 CLOCK IN (MASUK)
-        // =========================
 // =========================
 // 🟢 CLOCK IN (MASUK)
 // =========================
 
 // ❌ belum jam masuk
-if (hour < 8) {
+if (hour < 6) {
     showAppModal(
         "Belum Waktunya",
         `Presensi masuk dibuka pukul <b>08:00</b><br>Sekarang pukul <b>${timeStr}</b>`,
@@ -396,7 +403,7 @@ if (hour < 8) {
 }
 
 // ❌ lewat jam masuk
-if (hour >= 16) {
+if (hour > 15) {
     showAppModal(
         "Presensi Ditutup",
         "Presensi masuk hanya tersedia sampai <b>16:00</b>",
