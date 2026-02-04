@@ -164,9 +164,14 @@ async function initHome() {
         renderHistoryUI(
             history.map(item => ({
                 dateKey: item.tanggal,
-                rawDate: item.tanggal_label || item.tanggal,
-                inTime: item.masuk || '--:--:--',
-                outTime: item.keluar || '--:--:--',
+                rawDate: `${item.hari}, ${new Date(item.tanggal).toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                })}`,
+                                
+                inTime: item.jam_masuk || '--:--:--',
+                outTime: item.jam_keluar || '--:--:--',
                 type: item.status || 'KDK'
             }))
         );
@@ -301,6 +306,14 @@ function processAttendance() {
 }
 
 async function executeAttendanceLogic() {
+    
+        // 🔐 GUARD WAJIB: pastikan GPS ada
+        if (currentUserLat == null || currentUserLon == null) {
+            console.warn("GPS belum siap, ulangi lewat processAttendance()");
+            processAttendance();   // balik ke pintu utama
+            return;
+        }
+
     const now = new Date();
     const hour = now.getHours();
     const todayKey = formatDateKey(now);
@@ -325,25 +338,32 @@ async function executeAttendanceLogic() {
         // =========================
         // 🔴 CLOCK OUT (PULANG)
         // =========================
-        if (existingIndex > -1) {
+        if (existingIndex > -1 && history[existingIndex].inTime !== '--:--:--') {
+
+            // ❌ sudah clock out
             if (history[existingIndex].outTime !== '--:--:--') {
-                showAppModal("Info", "Anda sudah selesai presensi hari ini.");
+                showAppModal(
+                    "Info",
+                    "Anda sudah menyelesaikan presensi hari ini.",
+                    "info"
+                );
                 return;
             }
-
+    
+            // ❌ belum jam pulang
             if (hour < 16) {
                 showAppModal(
                     "Belum Waktunya",
-                    `Presensi Pulang baru dibuka pukul <b>16:00</b>.<br>Sekarang pukul <b>${timeStr}</b>`,
+                    `Presensi pulang dibuka pukul <b>16:00</b><br>Sekarang pukul <b>${timeStr}</b>`,
                     "warning"
                 );
                 return;
             }
-
-            // ✅ UPDATE LOCAL
+    
+            // ✅ CLOCK OUT SAH
             history[existingIndex].outTime = timeStr;
-
-            // ✅ KIRIM KE SERVER (SESUIAI DB TEMANMU)
+            saveLocalHistory(history);
+    
             if (window.PresensiAPI && activeUser?.token) {
                 await PresensiAPI.submit(activeUser.token, {
                     date: todayKey,
@@ -352,45 +372,79 @@ async function executeAttendanceLogic() {
                     clock_out_lng: currentUserLon
                 });
             }
-
-            msg = "Presensi Pulang Berhasil Dicatat";
+    
+            showAppModal("Berhasil", "Presensi pulang berhasil dicatat", "success");
+            renderHistoryUI(history);
+            return;
         }
 
         // =========================
         // 🟢 CLOCK IN (MASUK)
         // =========================
-        else {
-            if (hour < 6) {
-                showAppModal(
-                    "Belum Waktunya",
-                    "Presensi Masuk baru dibuka pukul <b>06:00</b>.",
-                    "warning"
-                );
-                return;
-            }
+// =========================
+// 🟢 CLOCK IN (MASUK)
+// =========================
 
-            // ✅ SIMPAN LOCAL (format SAMA dengan API)
-            history.push({
-                date: todayKey,
-                clock_in_time: timeStr,
-                clock_out_time: null,
-                type: 'KDK',
-                lat: currentUserLat,
-                lon: currentUserLon
-            });   
+// ❌ belum jam masuk
+if (hour < 8) {
+    showAppModal(
+        "Belum Waktunya",
+        `Presensi masuk dibuka pukul <b>08:00</b><br>Sekarang pukul <b>${timeStr}</b>`,
+        "warning"
+    );
+    return;
+}
 
-            // ✅ KIRIM KE SERVER
-            if (window.PresensiAPI && activeUser?.token) {
-                await PresensiAPI.submit(activeUser.token, {
-                    date: todayKey,
-                    clock_in_time: timeStr,
-                    clock_in_lat: currentUserLat,
-                    clock_in_lng: currentUserLon
-                });
-            }
+// ❌ lewat jam masuk
+if (hour >= 16) {
+    showAppModal(
+        "Presensi Ditutup",
+        "Presensi masuk hanya tersedia sampai <b>16:00</b>",
+        "warning"
+    );
+    return;
+}
 
-            msg = "Presensi Masuk Berhasil Dicatat";
-        }
+// ❌ sudah clock in hari ini
+if (existingIndex > -1) {
+    showAppModal(
+        "Info",
+        "Anda sudah melakukan presensi masuk hari ini.",
+        "info"
+    );
+    return;
+}
+
+// ✅ CLOCK IN SAH
+history.push({
+    dateKey: todayKey,
+    rawDate: now.toLocaleDateString("id-ID", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+    }),
+    inTime: timeStr,
+    outTime: '--:--:--',
+    type: 'KDK'
+});
+
+// 💾 SIMPAN LOCAL
+saveLocalHistory(history);
+
+// 🌐 KIRIM KE SERVER
+if (window.PresensiAPI && activeUser?.token) {
+    await PresensiAPI.submit(activeUser.token, {
+        date: todayKey,
+        clock_in_time: timeStr,
+        latitude: currentUserLat,
+        longitude: currentUserLon
+    });
+}
+
+showAppModal("Berhasil", "Presensi Masuk Berhasil Dicatat", "success");
+renderHistoryUI(history);
+return;
 
         // 💾 SIMPAN LOCAL
         saveLocalHistory(history);
