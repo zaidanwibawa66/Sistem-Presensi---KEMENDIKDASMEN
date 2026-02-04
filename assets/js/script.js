@@ -192,7 +192,12 @@ async function initHistoryPage() {
     }
 
     // 🔥 FIX UTAMA ADA DI SINI
-    const apiHistory = apiResult.history;
+    const apiHistory =
+    apiResult?.data?.history ??
+    apiResult?.data?.data ??
+    apiResult?.data ??
+    apiResult?.history ??
+    [];
 
     if (!Array.isArray(apiHistory)) {
         console.error("History API bukan array:", apiHistory);
