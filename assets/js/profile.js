@@ -5,8 +5,7 @@
  */
 
 const ProfileAPI = {
-    // Pastikan port sama dengan file login.js (8000)
-    baseUrl: "http://172.16.16.78:8080",
+    baseUrl: "http://caraka-biroumumpbj.kemendikdasmen.go.id/api",
 
     /**
      * Mengambil data profil user terbaru dari server
@@ -26,17 +25,14 @@ const ProfileAPI = {
                 }
             });
 
-            // Jika token expired atau server error, lempar error agar ditangkap catch
             if (!response.ok) {
                 throw new Error(`HTTP Error: ${response.status}`);
             }
 
             const result = await response.json();
             
-            // Debugging: Cek apa isi data sebenarnya dari server
             console.log("[ProfileAPI] Response:", result);
 
-            // Sesuai dokumentasi index.html: { status: "success", data: { ... } }
             if (result.status === 'success' && result.data) {
                 return result.data;
             } else {
@@ -45,10 +41,9 @@ const ProfileAPI = {
             }
         } catch (error) {
             console.error("[ProfileAPI] Gagal mengambil profil:", error);
-            return null; // Kembalikan null agar UI tidak berubah (tetap menampilkan data login awal)
+            return null; 
         }
     }
 };
 
-// Expose ke Global Window
 window.ProfileAPI = ProfileAPI;

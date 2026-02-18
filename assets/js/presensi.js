@@ -2,7 +2,7 @@
  * PRESENSI API
  */
 const PresensiAPI = {
-    baseUrl: "http://172.16.16.78:8080",
+    baseUrl: "http://caraka-biroumumpbj.kemendikdasmen.go.id/api",
 
     async submit(token, payload) {
         try {

@@ -4,9 +4,7 @@
  */
 
 const LoginAPI = {
-    // PENTING: Pastikan IP ini SAMA PERSIS dengan yang ada di profil.js dan calendar.js
-    // URL dari file profil.js Anda: http://10.30.13.24/api
-    baseUrl: "http://172.16.16.78:8080",
+    baseUrl: "http://caraka-biroumumpbj.kemendikdasmen.go.id/api",
 
     /**
      * Melakukan login user
@@ -29,7 +27,6 @@ const LoginAPI = {
                 })
             });
 
-            // Jika server merespon tapi error (misal 404 atau 500)
             if (!response.ok) {
                 console.error("Server Error:", response.status, response.statusText);
                 throw new Error(`Server Error: ${response.status}`);
@@ -40,7 +37,6 @@ const LoginAPI = {
 
         } catch (error) {
             console.error("Login Fetch Error:", error);
-            // Kembalikan objek error agar script.js bisa menampilkan pesan ke user
             return { 
                 status: 'error', 
                 message: 'Gagal menghubungi server. Pastikan Anda terhubung ke jaringan kantor/WiFi yang benar.' 

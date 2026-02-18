@@ -4,7 +4,7 @@
  */
 
 const CalendarAPI = {
-    baseUrl: "http://172.16.16.78:8080",
+    baseUrl: "http://caraka-biroumumpbj.kemendikdasmen.go.id/api",
     
     _cache: {},
 
@@ -28,10 +28,7 @@ const CalendarAPI = {
             if (result.status === 'success' && result.data && result.data.holidays) {
                 let holidays = result.data.holidays;
 
-                // ============================================================
-                // FITUR PATCHING: Paksa tanggal tertentu jadi 'cuti' (Kuning)
-                // ============================================================
-                const overrides = {
+                                const overrides = {
                     "2026-02-16": "Cuti Bersama Imlek",
                     "2026-03-18": "Cuti Bersama Nyepi",
                     "2026-03-20": "Cuti Bersama Idul Fitri",
@@ -42,22 +39,16 @@ const CalendarAPI = {
                     "2026-12-26": "Cuti Bersama Natal"
                 };
 
-                // Loop tanggal override, ubah data dari API
                 for (const [date, newName] of Object.entries(overrides)) {
-                    // Jika tanggal ada di data API, kita ubah tipenya
                     if (holidays[date]) {
-                        holidays[date].type = 'cuti'; // Ubah jadi kuning
-                        // Opsional: Ubah nama juga agar ada kata "Cuti Bersama"
-                        // holidays[date].name = newName; 
+                        holidays[date].type = 'cuti';
                     } else {
-                        // Jika tanggal tidak ada di API, kita tambahkan manual
                         holidays[date] = {
                             name: newName,
                             type: 'cuti'
                         };
                     }
                 }
-                // ============================================================
 
                 this._cache[cacheKey] = holidays;
                 return holidays;
