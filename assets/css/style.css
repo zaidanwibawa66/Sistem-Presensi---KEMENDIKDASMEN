@@ -419,6 +419,34 @@ input, textarea {
     }
 }
 
+/* --- FIX LAYOUT 320px (MOBILE KECIL) --- */
+@media (max-width: 380px) {
+    /* Perkecil gap antar elemen di header */
+    .mobile-view {
+        gap: 5px !important; 
+    }
+    
+    /* Nama user fontnya dikecilkan sedikit */
+    .user-fullname-text {
+        font-size: 0.85rem !important; 
+    }
+
+    /* Sembunyikan kata "Lapor" jika layar SANGAT kecil (< 330px), sisakan icon saja */
+    /* Opsional: Hapus baris di bawah ini jika ingin teks tetap muncul */
+    .btn-warning span:last-child {
+       display: none; 
+    }
+    
+    /* Pastikan tombol tetap bulat jika teks hilang */
+    .btn-warning {
+        padding: 6px !important;
+        aspect-ratio: 1/1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}
+
 .hist-item-gradient { 
     background: linear-gradient(90deg, #38bdf8 0%, #0ea5e9 100%); 
     color: white; border-radius: 16px; padding: 15px 20px; 
@@ -454,3 +482,34 @@ input, textarea {
 #viewHistory tr:last-child td:last-child { border-bottom-right-radius: 20px; }
 #viewHistory tbody tr:hover { background-color: #f8fafc; }
 #viewHistory .badge { border-radius: 8px !important; padding: 6px 12px !important; font-weight: 600; }
+
+/* Cari bagian #btn-send di CSS Anda dan update menjadi seperti ini */
+#btn-send {
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+    
+    /* Pastikan border radius sama dengan kotak lokasi */
+    border-radius: 12px !important; 
+    
+    /* Padding diatur agar tinggi tombol proporsional (tidak terlalu tebal) */
+    padding-top: 14px !important;
+    padding-bottom: 14px !important;
+    
+    /* Pastikan tinggi otomatis mengikuti konten, bukan fixed */
+    height: auto !important; 
+    min-height: auto !important;
+    
+    /* Flexbox untuk merapikan icon dan teks */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Responsif untuk layar sangat kecil (< 380px) */
+@media (max-width: 380px) {
+    #btn-send {
+        font-size: 0.9rem; /* Perkecil teks sedikit */
+        padding: 12px !important; /* Kurangi padding */
+    }
+}
