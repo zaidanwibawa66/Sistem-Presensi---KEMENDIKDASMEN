@@ -1,8 +1,3 @@
-/**
- * assets/js/login.js
- * Handle komunikasi API khusus untuk Login & Logout
- */
-
 const LoginAPI = {
     baseUrl: "http://caraka-biroumumpbj.kemendikdasmen.go.id/api",
 
@@ -13,6 +8,8 @@ const LoginAPI = {
      * @returns {Promise<Object>} Response dari server
      */
     login: async function(email, password) {
+        var nip = document.getElementById("inputUser").value;
+        var password = document.getElementById("inputPass").value;
         console.log(`Mencoba login ke: ${this.baseUrl}/login.php`); // Debugging
 
         try {
@@ -22,7 +19,7 @@ const LoginAPI = {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    email: email,
+                    nip: nip,
                     password: password
                 })
             });

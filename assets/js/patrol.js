@@ -4,8 +4,7 @@
  */
 
 const PatrolAPI = {
-    // Gunakan Base URL yang sama dengan login.js
-    baseUrl: "http://172.16.16.78:8080",
+    baseUrl: "http://caraka-biroumumpbj.kemendikdasmen.go.id/api",
 
     /**
      * Mengirim Laporan Patroli
